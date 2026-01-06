@@ -1,0 +1,1502 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Lesson 11 • New Testament Giving (EN/KR Interactive App)</title>
+  <style>
+    :root{
+      --bg:#0b0f14; --panel:#121826; --panel2:#0f1522; --line:#243145;
+      --text:#e8edf6; --muted:#a9b6c8; --pri:#60a5fa; --good:#34d399; --warn:#fbbf24; --bad:#fb7185;
+      --chip:#0b1220;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
+    header{
+      position:sticky; top:0; z-index:10;
+      background:linear-gradient(180deg,#0f1420,#0b0f14);
+      border-bottom:1px solid var(--line);
+      padding:12px 14px;
+    }
+    .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between}
+    h1{margin:0;font-size:16px; font-weight:900}
+    .tiny{font-size:12px;color:var(--muted)}
+    .wrap{max-width:1280px; margin:0 auto; padding:14px; display:grid; grid-template-columns:340px 1fr; gap:14px}
+    @media (max-width:1024px){.wrap{grid-template-columns:1fr}}
+    .card{background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:14px}
+    .card2{background:var(--panel2); border:1px solid var(--line); border-radius:14px; padding:12px}
+    .btn, select, input[type="text"], input[type="number"], textarea{
+      border:1px solid var(--line); background:var(--panel2); color:var(--text);
+      border-radius:12px; padding:10px 12px; font-size:14px;
+    }
+    .btn{cursor:pointer}
+    .btn.pri{border-color:var(--pri)}
+    .btn.good{border-color:var(--good)}
+    .btn.warn{border-color:var(--warn)}
+    .btn.bad{border-color:var(--bad)}
+    .btn:disabled{opacity:.55; cursor:not-allowed}
+    textarea{width:100%; min-height:100px; resize:vertical}
+    .divider{height:1px; background:var(--line); margin:12px 0}
+    .pill{display:inline-flex; gap:8px; align-items:center; padding:8px 10px; background:var(--chip); border:1px solid var(--line); border-radius:999px}
+    .k{color:var(--pri); font-weight:900}
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+    .menuItem{
+      width:100%; text-align:left; cursor:pointer;
+      background:var(--panel2); border:1px solid var(--line); border-radius:14px;
+      padding:12px; display:flex; justify-content:space-between; gap:10px;
+    }
+    .menuItem.active{outline:2px solid var(--pri)}
+    .badge{font-size:12px; color:var(--muted); padding:4px 8px; border-radius:999px; border:1px solid var(--line); background:#0b1220}
+    .progress{height:10px; border-radius:999px; overflow:hidden; border:1px solid var(--line); background:#0b1220}
+    .progress>div{height:100%; width:0%; background:var(--pri); transition:width .2s ease}
+    .tabs{display:flex; gap:8px; flex-wrap:wrap}
+    .tab{padding:8px 10px; border-radius:999px; border:1px solid var(--line); background:var(--panel2); cursor:pointer}
+    .tab.active{outline:2px solid var(--pri)}
+    .grid2{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+    @media (max-width:1024px){.grid2{grid-template-columns:1fr}}
+    details{border:1px solid var(--line); border-radius:14px; background:var(--panel2); padding:10px}
+    details summary{cursor:pointer; font-weight:900}
+    .cue{color:#fcd34d; font-weight:900}
+    .quote{border-left:3px solid var(--pri); padding-left:10px; color:#dbe7ff}
+    .ok{color:var(--good); font-weight:900}
+    .warnTxt{color:var(--warn); font-weight:900}
+    .badTxt{color:var(--bad); font-weight:900}
+    .footer{padding:12px; text-align:center; color:var(--muted)}
+    .mcq{display:grid; gap:8px; margin-top:8px}
+    .opt{display:flex; gap:10px; align-items:flex-start; padding:10px; border-radius:12px; border:1px solid var(--line); background:#0b1220; cursor:pointer}
+    .opt input{margin-top:3px}
+    .hidden{display:none}
+  </style>
+</head>
+
+<body>
+<header>
+  <div class="row">
+    <div>
+      <h1 id="appTitle">Lesson 11 • New Testament Giving</h1>
+      <div class="tiny" id="appSubtitle">College-level Bible/Theology • 90 minutes • Interactive (EN/KR)</div>
+    </div>
+    <div class="row" style="justify-content:flex-end">
+      <span class="pill"><span class="k" id="langLabel">Language</span>
+        <select id="langSel">
+          <option value="en">English</option>
+          <option value="ko">한국어</option>
+          <option value="both">EN + KO (Side-by-side)</option>
+        </select>
+      </span>
+
+      <span class="pill"><span class="k" id="viewLabel">View</span>
+        <select id="viewSel">
+          <option value="instructor">Instructor</option>
+          <option value="student">Student</option>
+        </select>
+      </span>
+
+      <span class="pill"><span class="k" id="timerLabel">Timer</span>
+        <span class="mono" id="timerText">90:00</span>
+      </span>
+      <button class="btn pri" id="timerStart">Start</button>
+      <button class="btn" id="timerPause">Pause</button>
+      <button class="btn bad" id="timerReset">Reset</button>
+
+      <button class="btn good" id="exportBtn">Export JSON</button>
+      <label class="btn" style="display:inline-flex;gap:8px;align-items:center;">
+        Import JSON <input type="file" id="importFile" accept="application/json" style="display:none">
+      </label>
+      <button class="btn bad" id="resetAll">Reset All</button>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="row">
+    <div style="flex:1; min-width:260px;">
+      <div class="progress"><div id="progBar"></div></div>
+    </div>
+    <span class="pill"><span class="k" id="progLabel">Progress</span> <span class="mono" id="progText">0%</span></span>
+    <span class="pill"><span class="k" id="paceLabel">Pace</span>
+      <select id="paceSel">
+        <option value="strict">Strict pacing (time cues)</option>
+        <option value="flex" selected>Flexible pacing</option>
+      </select>
+    </span>
+    <button class="btn warn" id="randomPrompt">Random Prompt</button>
+  </div>
+</header>
+
+<div class="wrap">
+  <!-- Sidebar -->
+  <aside class="card">
+    <div class="row">
+      <div style="font-weight:900" id="navTitle">Sections</div>
+      <span class="badge" id="doneBadge">0/18</span>
+    </div>
+    <div class="divider"></div>
+    <div id="menu"></div>
+
+    <div class="divider"></div>
+    <div class="card2">
+      <div style="font-weight:900" id="toolTitle">Quick Tools</div>
+      <div class="tiny" id="toolHint">Use during class: key terms, N–1 planner, exit ticket.</div>
+
+      <div class="divider"></div>
+
+      <details>
+        <summary id="glossaryTitle">Glossary / 핵심 용어</summary>
+        <div class="divider"></div>
+        <div class="tiny">
+          <div><span class="k">N–1</span> <span id="gN1"></span></div>
+          <div><span class="k">Grace</span> / <span class="k">은혜</span> <span id="gGrace"></span></div>
+          <div><span class="k">Worship</span> / <span class="k">예배</span> <span id="gWorship"></span></div>
+          <div><span class="k">Love</span> / <span class="k">사랑</span> <span id="gLove"></span></div>
+          <div><span class="k">Tithe</span> / <span class="k">십일조</span> <span id="gTithe"></span></div>
+          <div><span class="k">Solidarity</span> / <span class="k">연대</span> <span id="gSolidarity"></span></div>
+          <div><span class="k">Eucharistic economy</span> / <span class="k">성찬의 경제</span> <span id="gEcon"></span></div>
+        </div>
+      </details>
+
+      <div class="divider"></div>
+
+      <details>
+        <summary id="plannerTitle">N–1 Subtraction Planner / N–1 감산 실천</summary>
+        <div class="divider"></div>
+        <div class="grid2">
+          <div>
+            <div class="tiny" id="pl1">Choose one subtraction</div>
+            <select id="subType" style="width:100%">
+              <option value="coffee">Coffee / 커피</option>
+              <option value="takeout">Take-out / 배달·외식</option>
+              <option value="subscription">Subscription / 구독</option>
+              <option value="time">Time block / 시간</option>
+              <option value="other">Other / 기타</option>
+            </select>
+            <input type="text" id="subOther" placeholder="If other, describe / 기타 설명" style="width:100%; margin-top:8px" />
+          </div>
+          <div>
+            <div class="tiny" id="pl2">Redirect toward N–1</div>
+            <select id="redirectTo" style="width:100%">
+              <option value="friend_groceries">Friend’s groceries / 지인 식료품</option>
+              <option value="food_ministry">Food ministry / 푸드 사역</option>
+              <option value="mutual_aid">Mutual aid / 상호부조</option>
+              <option value="creation_care">Creation care / 창조세계 돌봄</option>
+              <option value="other">Other / 기타</option>
+            </select>
+            <input type="text" id="redirectOther" placeholder="If other, describe / 기타 설명" style="width:100%; margin-top:8px" />
+          </div>
+        </div>
+        <div style="margin-top:10px">
+          <div class="tiny" id="pl3">Plan (weekly)</div>
+          <div class="grid2">
+            <input type="number" id="amount" min="0" step="1" placeholder="Amount (₩/$) / 금액" />
+            <input type="text" id="when" placeholder="When? (e.g., weekly) / 언제?" />
+          </div>
+          <textarea id="plannerNotes" placeholder="Why this matters (Phil 2 / 2 Cor 8) … / 왜 중요한가…"></textarea>
+          <button class="btn good" id="savePlan">Save Plan</button>
+          <span class="badge" id="planSaved">—</span>
+        </div>
+      </details>
+
+      <div class="divider"></div>
+
+      <details>
+        <summary id="exitTitle">Exit Ticket / 한 문장 요약</summary>
+        <div class="divider"></div>
+        <textarea id="exitTicket" placeholder="One sentence: ‘NT giving is…’ / 한 문장: ‘신약의 헌금은…’"></textarea>
+        <button class="btn" id="saveExit">Save</button>
+      </details>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="card">
+    <div class="row">
+      <div>
+        <div style="font-size:18px;font-weight:900" id="secTitle">—</div>
+        <div class="tiny" id="secMeta">—</div>
+      </div>
+      <div class="tabs">
+        <div class="tab active" data-tab="script" id="tabScript">Script</div>
+        <div class="tab" data-tab="activities" id="tabActs">Activities</div>
+        <div class="tab" data-tab="check" id="tabCheck">Quick Check</div>
+        <div class="tab" data-tab="notes" id="tabNotes">Notes</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <section id="panelScript"></section>
+    <section id="panelActivities" class="hidden"></section>
+    <section id="panelCheck" class="hidden"></section>
+    <section id="panelNotes" class="hidden"></section>
+  </main>
+</div>
+
+<div class="footer">Offline single-file HTML • Autosave (localStorage) • EN/KR toggle</div>
+
+<script>
+(() => {
+  const STORAGE_KEY = "lesson11_nt_giving_bilingual_v1";
+
+  // ---------- Lesson Data (EN + KO) ----------
+  const lesson = {
+    title: { en: "Lesson 11: New Testament Giving", ko: "레슨 11: 신약의 헌금과 나눔" },
+    meta:  { en: "Course: College-level Bible/Theology • Duration: 90 minutes", ko: "과목: 대학 성경/신학 • 수업시간: 90분" },
+    thesis: {
+      en: "Thesis: In the New Testament, giving is not just funding church programs. It is a Christ-centered, Spirit-shaped participation in Jesus’ N–1 self-emptying (Phil 2), grounded in baptism and the Lord’s Supper, and directed toward N–1—especially the poor, the excluded, and the groaning creation.",
+      ko: "논제: 신약에서 헌금은 단지 교회 프로그램을 운영하기 위한 재원이 아니다. 그것은 그리스도 중심적이며 성령이 빚어내는 방식으로, 예수님의 N–1 자기비움(빌 2)에 참여하는 삶이다. 이 참여는 세례와 성찬에 의해 정체성과 소명을 부여받고, 특히 가난한 자, 배제된 자, 그리고 탄식하는 창조세계라는 N–1을 향해 흘러간다."
+    },
+    glossary: {
+      gN1: {
+        en: "Two uses: (1) N–1 as the neighbor just beyond our comfort zone. (2) N–1 as a small subtraction practice for their sake.",
+        ko: "두 가지 용법: (1) N–1 = 우리의 돌봄 반경 바깥에 있는 ‘가까운 타자’. (2) N–1 = 그들을 위해 내 편안함을 ‘하나씩’ 줄이는 감산 실천."
+      },
+      gGrace: { en: "A Spirit-formed capacity; giving begins with grace, not coercion.", ko: "강요가 아니라 은혜에서 시작되는 성령의 능력/형성." },
+      gWorship:{ en: "Giving as liturgy: a response to God within the rhythm of worship.", ko: "헌금은 예배의 일부로서 하나님께 대한 응답." },
+      gLove:  { en: "Concrete proof of love—love ‘in deed and truth,’ not only words.", ko: "말이 아니라 행위로 드러나는 사랑의 증거." },
+      gTithe: { en: "Sizemore’s logic: tithe as a floor, not a ceiling; begin and grow beyond as love directs.", ko: "시즈모어 논지: 십일조는 ‘천장’이 아니라 ‘바닥’—거기서 시작해 사랑이 이끄는 만큼 확장." },
+      gSolidarity:{ en: "Baptism and Eucharist shape a shared identity/vocation toward people and creation.", ko: "세례와 성찬이 형성하는 공동 정체성/소명—사람과 창조세계에 대한 연대." },
+      gEcon:{ en: "‘Eucharistic economy’: being fed at Christ’s table and extending sharing into daily bread and justice.", ko: "‘성찬의 경제’: 그리스도의 식탁에서 받은 은혜가 일상의 빵, 정의, 나눔으로 확장됨." }
+    },
+    sections: [
+      {
+        id:"s0", time:"0–10",
+        title:{ en:"Section 0 — Introduction & Recall (Lesson 10)", ko:"섹션 0 — 도입 & 레슨 10 회상" },
+        script:{
+          en: `
+<p>Good morning, everyone. Welcome back. Today we're continuing our conversation about giving, but we're making a major shift—from the Old Testament world to the New Testament church.</p>
+<p class="cue">[PAUSE. Make eye contact.]</p>
+<p>In Lesson 10, we focused on two big things.</p>
+<ul>
+  <li><b>Old Testament giving</b> as a whole way of life: <b>worship + justice + joy</b>.</li>
+  <li><b>Philippians 2:1–11</b> as the <b>N–1 pattern</b>: Christ steps down (N–1, N–1, N–1) for others, and God exalts him.</li>
+</ul>
+<p class="cue">[Transition. Shift tone slightly to signal new ground.]</p>
+<p>Today we ask: How does the New Testament apply that N–1 pattern to money and possessions in actual communities?</p>
+<p>Three voices will guide us today: <b>Paul</b> (2 Cor 8–9; Acts 2 & 4 echoes), <b>Denver Sizemore</b> (Lesson 11), and <b>Daniel Migliore</b> (sacraments as solidarity/sharing).</p>
+<p class="cue">[PAUSE. Let that sink in.]</p>
+<p><b>Big thesis:</b> ${""}</p>
+<p class="quote">${""}</p>
+<p><b>Goals:</b> describe NT giving as grace/worship/love; explain 2 Cor 8–9 & Acts 2/4; explain ‘tithe as floor’; connect baptism & Supper to money; apply one N–1 subtraction practice.</p>
+<p>Alright. Let’s start with Paul and the Macedonians.</p>
+`,
+          ko: `
+<p>좋은 아침입니다, 여러분. 다시 만나 반갑습니다. 오늘 우리는 ‘헌금과 나눔’에 대한 대화를 계속하지만, 큰 전환을 합니다—구약 세계에서 <b>신약 교회</b>로 이동합니다.</p>
+<p class="cue">[잠시 멈춤. 눈을 맞추세요.]</p>
+<p>레슨 10에서 우리는 두 가지 핵심을 다뤘습니다.</p>
+<ul>
+  <li><b>구약의 헌금</b>은 단순히 ‘돈을 넣는 행위’가 아니라 삶의 방식이며 <b>예배 + 정의 + 기쁨</b>이라는 세 차원을 가진다.</li>
+  <li><b>빌립보서 2:1–11</b>은 <b>N–1 패턴</b>이다: 그리스도께서 자발적으로 한 걸음씩 내려가(N–1, N–1, N–1) 타자를 살리시고, 하나님께서 그분을 높이신다.</li>
+</ul>
+<p class="cue">[전환. 새로운 내용을 예고하는 톤으로.]</p>
+<p>오늘의 질문은 이것입니다: 신약은 이 N–1 패턴을 <b>돈과 소유</b>, 그리고 <b>공동체의 경제적 삶</b>에 어떻게 적용하는가?</p>
+<p>오늘 우리를 안내할 세 ‘목소리’는 다음과 같습니다: <b>바울</b>(특히 고후 8–9장, 그리고 행 2·4장의 반향), <b>Denver Sizemore</b>(레슨 11), <b>Daniel Migliore</b>(세례·성찬을 연대와 나눔의 성례로 조명).</p>
+<p class="cue">[잠시 멈춤. 핵심을 마음에 담게 하세요.]</p>
+<p><b>오늘의 큰 논제:</b></p>
+<p class="quote">${""}</p>
+<p><b>학습 목표:</b> (1) 신약 헌금의 본질(은혜·예배·사랑)을 설명한다. (2) 고후 8–9장과 행 2/4장이 보여주는 ‘그리스도의 가난에 참여’와 N–1 패턴을 설명한다. (3) ‘십일조는 바닥’ 논지를 말할 수 있다. (4) 세례·성찬이 돈의 사용을 형성하는 이유를 설명한다. (5) 구체적 N–1 감산 실천 1가지를 설계한다.</p>
+<p>자, 이제 바울과 마게도냐 교회 이야기로 들어가 봅시다.</p>
+`
+        },
+        activities: [
+          {
+            id:"a0_1",
+            title:{en:"Warm-up (60 seconds)", ko:"워밍업 (60초)"},
+            prompt:{
+              en:"Write one sentence: ‘In Lesson 10, OT giving = ____ + ____ + ____.’ Then: ‘Phil 2 describes Jesus’ N–1 as…’",
+              ko:"한 문장으로 적어보세요: ‘레슨 10에서 구약 헌금 = ____ + ____ + ____.’ 그리고 ‘빌 2에서 예수님의 N–1은…’"
+            },
+            type:"text"
+          },
+          {
+            id:"a0_2",
+            title:{en:"Quick pair-share", ko:"짝 토의"},
+            prompt:{
+              en:"Where do people most often get confused about ‘giving’ (duty vs worship vs justice vs joy)? Name one example.",
+              ko:"사람들이 ‘헌금’을 어떤 지점에서 가장 혼동하나요(의무/예배/정의/기쁨)? 예 1가지를 말해보세요."
+            },
+            type:"text"
+          }
+        ],
+        check: {
+          id:"c0",
+          title:{en:"Quick Check (Section 0)", ko:"퀵체크 (섹션 0)"},
+          items:[
+            {
+              id:"c0q1",
+              q:{en:"Lesson 10 framed OT giving as:", ko:"레슨 10에서 구약 헌금은 다음으로 요약된다:"},
+              options:[
+                {en:"Fear + guilt + duty", ko:"두려움 + 죄책감 + 의무"},
+                {en:"Worship + justice + joy", ko:"예배 + 정의 + 기쁨"},
+                {en:"Prosperity + success + status", ko:"번영 + 성공 + 지위"}
+              ],
+              answer:1,
+              explain:{en:"OT giving was taught as woven into worship, structural justice, and joyful feasting in God’s presence.", ko:"구약 헌금은 예배의 리듬, 구조적 돌봄(정의), 그리고 하나님 앞의 기쁨과 잔치로 묶여 있습니다."}
+            },
+            {
+              id:"c0q2",
+              q:{en:"N–1 (Phil 2) mainly means:", ko:"N–1(빌 2)의 핵심은:"},
+              options:[
+                {en:"Protect status at all costs", ko:"지위를 끝까지 지키는 것"},
+                {en:"Voluntary downward movement for others", ko:"타자를 위해 자발적으로 내려가는 움직임"},
+                {en:"A rule to shame people into giving", ko:"사람을 부끄럽게 만들어 헌금하게 하는 규칙"}
+              ],
+              answer:1,
+              explain:{en:"Phil 2 highlights self-emptying for others, not coercion.", ko:"빌 2는 강요가 아니라 ‘자기비움’을 통해 타자를 살리는 길을 보여줍니다."}
+            }
+          ]
+        },
+        notesHint:{en:"Record student misconceptions to revisit later.", ko:"학생들이 혼동하는 지점을 기록해 두었다가 뒤에서 다시 연결하세요."}
+      },
+
+      {
+        id:"s1", time:"10–25",
+        title:{ en:"Section 1 — Paul’s Collection: Grace, Joy, Fairness (2 Cor 8)", ko:"섹션 1 — 바울의 연보: 은혜·기쁨·공평(고후 8장)" },
+        script:{
+          en: `
+<p>Please open to <b>2 Corinthians 8</b>. <span class="cue">[Give them 10 seconds.]</span></p>
+
+<details open>
+  <summary>1.1 Grace in Poverty (2 Cor 8:1–5)</summary>
+  <div class="divider"></div>
+  <p>Paul starts with <b>grace</b>, not command. The Macedonians: affliction + extreme poverty, yet abundant joy overflowing into generosity.</p>
+  <p class="cue">[Rhetorical contrast]</p>
+  <p><span class="mono">affliction + poverty</span> would normally yield <span class="mono">fear + self-protection</span>. But Paul testifies:</p>
+  <p class="mono">affliction + poverty + grace → joy + generous giving</p>
+  <p>Key line: they gave <b>themselves first to the Lord</b> (v.5). Money follows self-surrender.</p>
+</details>
+
+<details>
+  <summary>1.2 Christ’s Poverty & Our Richness (2 Cor 8:9 + Phil 2)</summary>
+  <div class="divider"></div>
+  <p class="quote">“Though he was rich, yet for your sake he became poor…” (8:9)</p>
+  <p>This is Phil 2 in economic imagery: Christ’s riches (glory/status) → poverty (incarnation/service/cross) → our richness (Spirit, adoption, inheritance).</p>
+  <p>Paul applies it to money: not threat, not prosperity, but imagination shaped by Jesus’ N–1.</p>
+</details>
+
+<details>
+  <summary>1.3 Fairness & “No Needy Among Them” (2 Cor 8:13–15; Acts 2 & 4)</summary>
+  <div class="divider"></div>
+  <p>Paul: “a fair balance” (not crushing one group). Manna logic: “no too much / no too little.”</p>
+  <p>Acts 2/4 portraits: Spirit-driven sharing, voluntary, anchored in fellowship and “breaking of bread.” Aim: “There was not a needy person among them.”</p>
+</details>
+`,
+          ko: `
+<p><b>고린도후서 8장</b>을 펴 주세요. <span class="cue">[10초 정도 기다립니다.]</span></p>
+
+<details open>
+  <summary>1.1 가난 속의 은혜 (고후 8:1–5)</summary>
+  <div class="divider"></div>
+  <p>바울은 ‘명령’이 아니라 <b>은혜</b>로 시작합니다. 마게도냐 교회는 <b>환난</b>과 <b>극심한 가난</b> 가운데 있었지만, 그 은혜가 <b>넘치는 기쁨</b>과 <b>풍성한 나눔</b>으로 흘러넘쳤다고 말합니다.</p>
+  <p class="cue">[수사적 대비]</p>
+  <p>보통이라면 <span class="mono">환난 + 가난</span>은 <span class="mono">두려움 + 자기보호</span>를 낳겠죠. 그런데 바울의 증언은 이렇습니다:</p>
+  <p class="mono">환난 + 가난 + 은혜 → 기쁨 + 너그러움</p>
+  <p>핵심은 5절입니다: 그들은 먼저 <b>자기 자신을 주께 드렸고</b>, 그 다음에 물질을 드렸습니다. 헌금은 ‘전체 인격의 드림’에서 흘러나옵니다.</p>
+</details>
+
+<details>
+  <summary>1.2 그리스도의 가난과 우리의 부요 (고후 8:9 + 빌 2)</summary>
+  <div class="divider"></div>
+  <p class="quote">“부요하신 이로서 너희를 위하여 가난하게 되심은…”(8:9)</p>
+  <p>이 구절은 빌립보서 2장의 N–1 패턴을 경제적 이미지로 말한 것입니다: 그리스도의 부요(영광/지위) → 가난(성육신/섬김/십자가) → 우리의 부요(성령, 입양, 유업).</p>
+  <p>바울은 이것을 ‘돈’에 적용합니다: 협박도 아니고, 번영복음도 아닙니다. 예수의 N–1이 우리의 상상력과 소비 패턴을 재구성하도록 초대합니다.</p>
+</details>
+
+<details>
+  <summary>1.3 공평과 “가난한 자가 없게” (고후 8:13–15; 행 2·4)</summary>
+  <div class="divider"></div>
+  <p>바울은 “공평”을 말합니다—어느 한쪽을 짓누르는 구조가 아니라, <b>필요를 따라 균형</b>이 이루어지는 공동체. 출애굽기 만나 이야기: “많이 거둔 자도 남지 않고 적게 거둔 자도 모자라지 않았다.”</p>
+  <p>행 2/4장의 초대교회는 성령이 이끄는 자발적 나눔을 보여줍니다. 사도들의 가르침/교제/떡을 뗌/기도의 삶 속에서, 목표는 하나입니다: “그들 중에 가난한 사람이 없게.”</p>
+</details>
+`
+        },
+        activities: [
+          {
+            id:"a1_1",
+            title:{en:"Text Observation", ko:"텍스트 관찰"},
+            prompt:{
+              en:"In 2 Cor 8:1–5, list the ‘unexpected equation’ Paul describes. What’s inverted?",
+              ko:"고후 8:1–5에서 바울이 말하는 ‘뒤집힌 방정식’을 적어보세요. 무엇이 전복되나요?"
+            },
+            type:"text"
+          },
+          {
+            id:"a1_2",
+            title:{en:"N–1 to Money (Micro-practice)", ko:"N–1을 돈으로 (미세 실천)"},
+            prompt:{
+              en:"Name one ‘small subtraction’ you could practice without drama this week. Why is it an imitation of Christ’s pattern?",
+              ko:"이번 주 ‘드라마 없이’ 실행 가능한 작은 감산 1가지를 적어보세요. 왜 이것이 그리스도의 패턴을 닮은 것인가요?"
+            },
+            type:"text"
+          }
+        ],
+        check: {
+          id:"c1",
+          title:{en:"Quick Check (Section 1)", ko:"퀵체크 (섹션 1)"},
+          items:[
+            {
+              id:"c1q1",
+              q:{en:"In 2 Cor 8, Paul begins the money conversation with:", ko:"고후 8장에서 바울은 ‘돈’ 이야기를 무엇으로 시작하나요?"},
+              options:[
+                {en:"Threat and punishment", ko:"협박과 처벌"},
+                {en:"Grace at work", ko:"역사하는 은혜"},
+                {en:"A prosperity guarantee", ko:"번영 보장"}
+              ],
+              answer:1,
+              explain:{en:"Paul frames giving as grace (charis), not coercion.", ko:"바울은 헌금을 ‘은혜(χάρις)’로 프레이밍합니다."}
+            },
+            {
+              id:"c1q2",
+              q:{en:"2 Cor 8:9 parallels Phil 2 by portraying Christ’s:", ko:"고후 8:9은 빌 2와 평행하게 그리스도의 무엇을 보여주나요?"},
+              options:[
+                {en:"Status-protection strategy", ko:"지위 방어 전략"},
+                {en:"Riches → voluntary poverty for others", ko:"부요 → 타자를 위한 자발적 가난"},
+                {en:"Financial advice for investing", ko:"투자 조언"}
+              ],
+              answer:1,
+              explain:{en:"Christ’s downward movement becomes the imagination for Christian economic life.", ko:"그리스도의 ‘내려감’이 신자의 경제적 삶의 상상력을 형성합니다."}
+            }
+          ]
+        },
+        notesHint:{en:"Track where students confuse ‘fairness’ with ‘equal outcomes.’", ko:"학생들이 ‘공평’을 ‘완전 동일’로 오해하는 지점을 기록해 두세요."}
+      },
+
+      {
+        id:"s2", time:"25–50",
+        title:{ en:"Section 2 — Sizemore: Nature, Reasons, Standard", ko:"섹션 2 — Sizemore: 본질·이유·기준" },
+        script:{
+          en: `
+<p>Denver Sizemore organizes NT giving with three questions: <b>What is it?</b> (nature) <b>Why do it?</b> (reasons) <b>How much?</b> (standard).</p>
+
+<details open>
+  <summary>2.1 Nature: Grace, Worship, Love</summary>
+  <div class="divider"></div>
+  <ul>
+    <li><b>Grace</b>: a Spirit-formed capacity, not merely human discipline.</li>
+    <li><b>Worship</b>: giving belongs to the liturgy (e.g., 1 Cor 16 “first day of the week”).</li>
+    <li><b>Love</b>: “proof of your love” (2 Cor 8:24); treasure reveals heart (Matt 6:21).</li>
+  </ul>
+</details>
+
+<details>
+  <summary>2.2 Reasons: Kingdom, Formation, Accountability</summary>
+  <div class="divider"></div>
+  <ul>
+    <li><b>Kingdom work</b> needs resources (missions, mercy, teaching, care).</li>
+    <li><b>Formation</b>: money tests trust and trains unselfishness (Phil 2-shaped discipleship).</li>
+    <li><b>Accountability</b>: stewardship matters; we will give account (without turning grace into terror).</li>
+  </ul>
+</details>
+
+<details>
+  <summary>2.3 Standard: Tithe as Floor, Not Ceiling</summary>
+  <div class="divider"></div>
+  <p>Sizemore’s pastoral logic: Scripture gives no maximum, but implies a minimum baseline. Under greater grace, the Christian standard should not be lower than the tithe. Begin at 10% (as capacity permits) and grow beyond it as love directs.</p>
+  <p class="cue">[Pastoral pause]</p>
+  <p>For students with limited income: focus on <b>trajectory</b>: nothing → something → proportional → toward/ beyond tithe over time.</p>
+</details>
+`,
+          ko: `
+<p>Denver Sizemore는 신약 헌금을 세 질문으로 정리합니다: <b>무엇인가?</b>(본질) <b>왜 하는가?</b>(이유) <b>얼마나?</b>(기준)</p>
+
+<details open>
+  <summary>2.1 본질: 은혜 · 예배 · 사랑</summary>
+  <div class="divider"></div>
+  <ul>
+    <li><b>은혜</b>: 헌금은 단지 ‘훈련된 의지력’이 아니라 성령이 형성하시는 능력이다.</li>
+    <li><b>예배</b>: 헌금은 예배의 리듬 안에 속한다(예: 고전 16 “매주 첫날”).</li>
+    <li><b>사랑</b>: “너희 사랑의 증거”(고후 8:24). 보물 있는 곳에 마음이 있다(마 6:21).</li>
+  </ul>
+</details>
+
+<details>
+  <summary>2.2 이유: 하나님 나라 · 형성 · 책임</summary>
+  <div class="divider"></div>
+  <ul>
+    <li><b>하나님 나라의 일</b>에는 자원이 필요하다(선교, 자비 사역, 가르침, 돌봄).</li>
+    <li><b>형성</b>: 돈은 신뢰를 시험하고, 이기심을 깎아내며, 빌 2형 제자로 훈련한다.</li>
+    <li><b>책임</b>: 청지기적 삶은 중요하며, 우리는 회계할 책임이 있다(은혜를 공포로 바꾸지 않으면서).</li>
+  </ul>
+</details>
+
+<details>
+  <summary>2.3 기준: 십일조는 ‘바닥’이지 ‘천장’이 아니다</summary>
+  <div class="divider"></div>
+  <p>시즈모어의 목회적 논리: 성경은 ‘최대치’를 정하지 않지만, 최소 기준의 방향을 제시한다. 더 큰 은혜 아래 사는 그리스도인의 기준이 구약보다 낮아질 수는 없다. 따라서 가능하다면 십일조를 시작점(바닥)으로 삼고, 사랑이 이끄는 만큼 확장한다.</p>
+  <p class="cue">[목회적 멈춤]</p>
+  <p>소득이 적은 학생들에게는 ‘정답 맞히기’가 아니라 <b>궤적</b>이 핵심입니다: 없음 → 조금 → 비율(%) → 시간이 흐르며 십일조를 향해/넘어서.</p>
+</details>
+`
+        },
+        activities: [
+          {
+            id:"a2_1",
+            title:{en:"3-Column Sort", ko:"3열 분류"},
+            prompt:{
+              en:"Sort 6 examples into Grace / Worship / Love (you can place one example in more than one column).",
+              ko:"6가지 예시를 은혜/예배/사랑으로 분류해 보세요(하나의 예시가 중복될 수도 있습니다)."
+            },
+            type:"text"
+          },
+          {
+            id:"a2_2",
+            title:{en:"Trajectory Plan", ko:"궤적 계획"},
+            prompt:{
+              en:"Write a realistic giving trajectory for a student this semester (not guilt-driven): from ‘something’ to ‘proportional.’",
+              ko:"이번 학기 학생의 ‘현실적 헌금 궤적’을 적어보세요(죄책감이 아니라 성장 중심): ‘조금’에서 ‘비율’로."
+            },
+            type:"text"
+          }
+        ],
+        check: {
+          id:"c2",
+          title:{en:"Quick Check (Section 2)", ko:"퀵체크 (섹션 2)"},
+          items:[
+            {
+              id:"c2q1",
+              q:{en:"Sizemore’s ‘nature of giving’ triad is:", ko:"시즈모어가 말하는 헌금의 본질 3요소는:"},
+              options:[
+                {en:"Talent, hustle, success", ko:"재능, 노력, 성공"},
+                {en:"Grace, worship, love", ko:"은혜, 예배, 사랑"},
+                {en:"Fear, pressure, compliance", ko:"두려움, 압박, 순응"}
+              ],
+              answer:1,
+              explain:{en:"He frames giving as Spirit-formed grace, worshipful liturgy, and concrete love.", ko:"헌금을 성령의 은혜, 예배의 행위, 사랑의 증거로 묶습니다."}
+            },
+            {
+              id:"c2q2",
+              q:{en:"‘Tithe as floor’ mainly aims to:", ko:"‘십일조는 바닥’ 논지의 핵심 목적은:"},
+              options:[
+                {en:"Set a legalistic maximum", ko:"율법적 최대치를 정하기"},
+                {en:"Provide a starting baseline and invite growth", ko:"시작 기준을 제공하고 성장으로 초대하기"},
+                {en:"Replace grace with fear", ko:"은혜를 두려움으로 바꾸기"}
+              ],
+              answer:1,
+              explain:{en:"Floor language emphasizes trajectory and growth beyond the minimum, not ceiling-limits.", ko:"‘바닥’은 천장이 아니라 성장의 시작점이며, 더 큰 사랑으로 확장되도록 초대합니다."}
+            }
+          ]
+        }
+      },
+
+      {
+        id:"s3", time:"50–70",
+        title:{ en:"Section 3 — Migliore: Baptism, Eucharist, Mission", ko:"섹션 3 — Migliore: 세례·성찬·선교" },
+        script:{
+          en: `
+<p>Migliore helps us see sacraments as shaping identity and vocation: <b>means of grace</b> that commission the church.</p>
+
+<details open>
+  <summary>3.1 Baptism: Identity, Solidarity, Creation Care</summary>
+  <div class="divider"></div>
+  <p>Baptism (Rom 6) marks dying/rising with Christ—old “it’s all mine” identity crucified; new “in Christ, for others” identity raised.</p>
+  <p>Solidarity expands: with suffering neighbors and with groaning creation (Rom 8). Water signals creation-renewal, not escape.</p>
+  <p class="cue">[Bridge to money]</p>
+  <p>A “baptized wallet” learns the N–1 pattern: small deaths of self-interest so others may live.</p>
+</details>
+
+<details>
+  <summary>3.2 The Lord’s Supper: Sharing, Justice, Daily Bread</summary>
+  <div class="divider"></div>
+  <p>The Supper is thanksgiving, communion, and foretaste of the kingdom banquet where none go hungry.</p>
+  <p class="warnTxt">Key claim:</p>
+  <p class="quote">We cannot share Eucharistic bread and refuse to share daily bread with the hungry.</p>
+  <p>Bread and wine come from land and labor; the table calls us to honor creation and resist exploitation.</p>
+</details>
+
+<details>
+  <summary>Offering as Eucharistic Extension</summary>
+  <div class="divider"></div>
+  <p>Framing: “Fed at Christ’s table, we offer gifts so others may share in daily bread, justice, and care for creation.”</p>
+</details>
+`,
+          ko: `
+<p>Migliore는 성례가 교회의 정체성과 소명을 형성한다고 말합니다: 성례는 <b>은혜의 방편</b>이며, 교회를 세상 속 선교로 ‘파송’합니다.</p>
+
+<details open>
+  <summary>3.1 세례: 정체성 · 연대 · 창조세계 돌봄</summary>
+  <div class="divider"></div>
+  <p>세례(롬 6)는 그리스도와 함께 죽고 살아나는 사건입니다—‘다 내 것’이라는 옛 정체성은 십자가에 못 박히고, ‘그리스도 안에서 타자를 위하여’라는 새 정체성이 일어납니다.</p>
+  <p>연대는 사람에게서 끝나지 않고, 탄식하는 창조세계(롬 8)로 확장됩니다. 물은 ‘현실 도피’가 아니라 ‘창조의 갱신’을 가리킵니다.</p>
+  <p class="cue">[돈으로 연결]</p>
+  <p>‘세례 받은 지갑’은 N–1 패턴을 배웁니다: 내 이익을 조금씩 죽이고, 타자가 살도록 돕는 감산의 습관입니다.</p>
+</details>
+
+<details>
+  <summary>3.2 성찬: 나눔 · 정의 · 일상의 빵</summary>
+  <div class="divider"></div>
+  <p>성찬은 감사(유카리스트), 교제(그리스도의 몸과 피에 참여), 그리고 ‘아무도 굶지 않는’ 하나님 나라 잔치의 전맛봄입니다.</p>
+  <p class="warnTxt">핵심 주장:</p>
+  <p class="quote">성찬의 빵을 나누면서 일상의 빵을 굶주린 이들과 나누지 않는다면, 그것은 모순이다.</p>
+  <p>빵과 포도주는 땅과 노동의 열매입니다. 성찬의 식탁은 창조세계를 존중하고 착취를 거부하는 삶으로 우리를 밀어냅니다.</p>
+</details>
+
+<details>
+  <summary>성찬의 연장으로서의 헌금</summary>
+  <div class="divider"></div>
+  <p>프레이밍 예시: “그리스도의 식탁에서 먹임을 받은 우리가, 이제 다른 이들이 일상의 빵과 정의와 창조세계 돌봄에 참여하도록 우리의 선물을 드립니다.”</p>
+</details>
+`
+        },
+        activities: [
+          {
+            id:"a3_1",
+            title:{en:"Sacrament-to-Economics Bridge", ko:"성례→경제 연결"},
+            prompt:{
+              en:"Complete the sentence: ‘If baptism means ____ , then my money must ____.’",
+              ko:"문장을 완성해 보세요: ‘세례가 ____을 의미한다면, 내 돈은 ____해야 한다.’"
+            },
+            type:"text"
+          },
+          {
+            id:"a3_2",
+            title:{en:"Table to Daily Bread", ko:"식탁→일상의 빵"},
+            prompt:{
+              en:"Name one way your church/campus can connect Sunday table language to weekday hunger/need.",
+              ko:"교회/캠퍼스가 ‘주일의 식탁’ 언어를 ‘주중의 굶주림/필요’와 연결하는 방법 1가지를 제안해 보세요."
+            },
+            type:"text"
+          }
+        ],
+        check: {
+          id:"c3",
+          title:{en:"Quick Check (Section 3)", ko:"퀵체크 (섹션 3)"},
+          items:[
+            {
+              id:"c3q1",
+              q:{en:"Migliore highlights baptism as identity + _____.", ko:"Migliore는 세례를 ‘정체성 + ____’로 강조한다."},
+              options:[
+                {en:"vocation/mission", ko:"소명/선교"},
+                {en:"wealth guarantee", ko:"부 보장"},
+                {en:"private spirituality only", ko:"사적 영성만"}
+              ],
+              answer:0,
+              explain:{en:"Baptism commissions a new identity and vocation in the world.", ko:"세례는 새로운 정체성과 세상 속 소명을 부여합니다."}
+            },
+            {
+              id:"c3q2",
+              q:{en:"The Lord’s Supper presses toward:", ko:"성찬은 무엇으로 우리를 밀어내나요?"},
+              options:[
+                {en:"Separation from material concerns", ko:"물질 문제로부터 분리"},
+                {en:"Sharing and justice consistent with the table", ko:"식탁과 일치하는 나눔과 정의"},
+                {en:"Ignoring hunger as ‘not spiritual’", ko:"굶주림을 ‘영적이지 않다’며 무시"}
+              ],
+              answer:1,
+              explain:{en:"Table participation implies daily bread sharing and justice, not contradiction.", ko:"식탁 참여는 일상의 빵 나눔과 정의를 요구합니다."}
+            }
+          ]
+        }
+      },
+
+      {
+        id:"s4", time:"70–85",
+        title:{ en:"Section 4 — Integration: One Paschal Script & N–1 Practices", ko:"섹션 4 — 통합: 하나의 파스카 스크립트 & N–1 실천" },
+        script:{
+          en: `
+<p>Now we integrate: baptism, Supper, and giving as one continuous paschal script—dying and rising, emptying and filling.</p>
+
+<details open>
+  <summary>4.1 One Paschal Script</summary>
+  <div class="divider"></div>
+  <ul>
+    <li><b>Baptism</b>: plunged into Christ’s death and raised into his life.</li>
+    <li><b>Table</b>: receive self-giving life into our bodies.</li>
+    <li><b>Giving</b>: small daily deaths/resurrections with money, time, attention.</li>
+  </ul>
+  <p class="mono">God gives → we receive → we give</p>
+</details>
+
+<details>
+  <summary>4.2 Gift → Gratitude → Sharing</summary>
+  <div class="divider"></div>
+  <p>Gift (creation, Christ, Spirit) → gratitude (worship, joy) → sharing (possessions, food, space, presence).</p>
+</details>
+
+<details>
+  <summary>4.3 N–1: Neighbor and Practice</summary>
+  <div class="divider"></div>
+  <p><b>N–1 as neighbor</b>: the person/group just beyond “us” (migrants, unhoused, single parents, disabled, polluted communities).</p>
+  <p><b>N–1 as practice</b>: minus one unit of comfort for their sake (coffee/subscription/time/budget line).</p>
+</details>
+`,
+          ko: `
+<p>이제 통합합니다: 세례·성찬·헌금을 하나의 파스카(죽음과 부활) 스크립트로 보세요—비움과 채움, 죽음과 생명, 수여와 나눔.</p>
+
+<details open>
+  <summary>4.1 하나의 파스카 스크립트</summary>
+  <div class="divider"></div>
+  <ul>
+    <li><b>세례</b>: 그리스도의 죽음에 참여하고, 그분의 생명으로 일어남.</li>
+    <li><b>성찬</b>: 자기내어줌의 생명을 ‘몸으로’ 받아먹음.</li>
+    <li><b>헌금</b>: 돈/시간/주의력에서 작은 죽음과 작은 부활을 살아냄.</li>
+  </ul>
+  <p class="mono">하나님이 주신다 → 우리는 받는다 → 우리는 준다</p>
+</details>
+
+<details>
+  <summary>4.2 선물 → 감사 → 나눔</summary>
+  <div class="divider"></div>
+  <p>선물(창조, 그리스도, 성령) → 감사(예배, 기쁨) → 나눔(소유, 음식, 공간, 존재/시간).</p>
+</details>
+
+<details>
+  <summary>4.3 N–1: 이웃과 실천</summary>
+  <div class="divider"></div>
+  <p><b>N–1 as 이웃</b>: ‘우리’ 바깥에 있으나 가까이 있는 타자(이주민, 노숙, 한부모, 장애, 오염 피해 공동체 등).</p>
+  <p><b>N–1 as 실천</b>: 그들을 위해 편안함을 ‘하나씩’ 줄이기(커피/구독/시간/교회 예산 한 항목 등).</p>
+</details>
+`
+        },
+        activities: [
+          {
+            id:"a4_1",
+            title:{en:"Group Design: One 4-week Experiment", ko:"그룹 설계: 4주 실험 1개"},
+            prompt:{
+              en:"Design a 4-week ‘N–1 practice’ your group can do together (what, when, metric).",
+              ko:"그룹이 함께 할 4주 ‘N–1 실천’을 설계하세요(무엇/언제/지표)."
+            },
+            type:"text"
+          },
+          {
+            id:"a4_2",
+            title:{en:"Map N–1 Nearby", ko:"주변 N–1 매핑"},
+            prompt:{
+              en:"Name one N–1 neighbor near your campus/church and one concrete need you can verify this week.",
+              ko:"캠퍼스/교회 주변의 N–1 이웃 1명을 떠올리고, 이번 주 확인 가능한 구체적 필요 1가지를 적어보세요."
+            },
+            type:"text"
+          }
+        ],
+        check: {
+          id:"c4",
+          title:{en:"Quick Check (Section 4)", ko:"퀵체크 (섹션 4)"},
+          items:[
+            {
+              id:"c4q1",
+              q:{en:"‘One paschal script’ links giving to:", ko:"‘하나의 파스카 스크립트’는 헌금을 무엇과 연결하나요?"},
+              options:[
+                {en:"Only church budgets", ko:"교회 예산만"},
+                {en:"Baptism + Table + daily dying/rising", ko:"세례 + 성찬 + 일상의 죽음/부활"},
+                {en:"Avoiding any discomfort", ko:"불편 회피"}
+              ],
+              answer:1,
+              explain:{en:"The point is embodied participation: receive grace and extend it through N–1 practices.", ko:"핵심은 체화된 참여입니다: 은혜를 받고, N–1 실천으로 흘려보내기."}
+            }
+          ]
+        }
+      },
+
+      {
+        id:"s5", time:"85–90",
+        title:{ en:"Section 5 — Synthesis & Concrete Challenge", ko:"섹션 5 — 종합 & 구체적 도전" },
+        script:{
+          en: `
+<p class="cue">[Read slowly, with intention.]</p>
+<p class="quote">“In the New Testament, giving is not a side topic… Baptism, the table, and the offering belong together as one paschal script: God gives, we receive, and then we give—especially toward N–1.”</p>
+
+<details open>
+  <summary>Three-Part Challenge (This month)</summary>
+  <div class="divider"></div>
+  <ol>
+    <li><b>Personal</b>: choose one sustainable N–1 subtraction (coffee/meal/subscription) and redirect it.</li>
+    <li><b>Communal</b>: draft a 30–40 sec script linking baptism + table + offering toward specific N–1 neighbors.</li>
+    <li><b>Spatial</b>: take an N–1 walk; ask “Who is N–1 here?” “What signs of need/creation hurt are visible?”</li>
+  </ol>
+</details>
+
+<p class="cue">[60 seconds of silence]</p>
+<p>Write down one specific N–1 action you could take this week. Just one.</p>
+`,
+          ko: `
+<p class="cue">[천천히, 의도를 담아 읽으세요.]</p>
+<p class="quote">“신약에서 헌금은 주변 주제가 아니다… 세례, 성찬, 헌금은 하나의 파스카 스크립트로 묶인다: 하나님이 주시고, 우리는 받고, 우리는 다시 준다—특히 N–1을 향해.”</p>
+
+<details open>
+  <summary>3가지 도전(이번 달)</summary>
+  <div class="divider"></div>
+  <ol>
+    <li><b>개인</b>: 지속 가능한 N–1 감산 1개(커피/외식/구독)를 선택해 그 자원을 N–1을 향해 전환하기.</li>
+    <li><b>공동체</b>: 세례 정체성 + 성찬 식탁 + 헌금을 ‘구체적 N–1 이웃’으로 연결하는 30–40초 안내 멘트를 작성하기.</li>
+    <li><b>공간</b>: N–1 산책을 해 보기: “여기서 N–1은 누구인가?” “필요/환경 상처의 표지는 무엇인가?”</li>
+  </ol>
+</details>
+
+<p class="cue">[60초 침묵]</p>
+<p>이번 주 할 수 있는 구체적 N–1 행동 하나를 적으세요. 딱 하나면 됩니다.</p>
+`
+        },
+        activities: [
+          {
+            id:"a5_1",
+            title:{en:"One-Step Commitment", ko:"한 걸음 결단"},
+            prompt:{
+              en:"Write your one N–1 action for this week. Make it measurable.",
+              ko:"이번 주 N–1 행동 1가지를 적고, 측정 가능하게 만드세요."
+            },
+            type:"text"
+          }
+        ],
+        check: {
+          id:"c5",
+          title:{en:"Quick Check (Section 5)", ko:"퀵체크 (섹션 5)"},
+          items:[
+            {
+              id:"c5q1",
+              q:{en:"The closing challenge focuses on:", ko:"마무리 도전의 초점은:"},
+              options:[
+                {en:"Perfection and instant transformation", ko:"완벽과 즉각적 변화"},
+                {en:"One concrete step (N–1) practiced this week", ko:"이번 주 실천할 구체적 한 걸음(N–1)"},
+                {en:"Avoiding economic talk in church", ko:"교회에서 경제 이야기를 피하기"}
+              ],
+              answer:1,
+              explain:{en:"The goal is one realistic step, not guilt or perfectionism.", ko:"목표는 죄책감이 아니라 현실적 ‘한 걸음’입니다."}
+            }
+          ]
+        }
+      }
+    ]
+  };
+
+  // Fill thesis into Section 0 script placeholders
+  lesson.sections[0].script.en = lesson.sections[0].script.en
+    .replace('<p><b>Big thesis:</b> </p><p class="quote"></p>', `<p><b>Big thesis:</b></p><p class="quote">${lesson.thesis.en}</p>`);
+  lesson.sections[0].script.ko = lesson.sections[0].script.ko
+    .replace('<p><b>오늘의 큰 논제:</b></p><p class="quote"></p>', `<p><b>오늘의 큰 논제:</b></p><p class="quote">${lesson.thesis.ko}</p>`);
+
+  // ---------- State ----------
+  const defaultState = {
+    lang:"en",
+    view:"instructor",
+    pace:"flex",
+    activeSectionId:"s0",
+    tab:"script",
+    // user inputs
+    activityResponses:{}, // key: activityId
+    notesBySection:{},    // key: sectionId
+    checkAnswers:{},      // key: checkItemId -> optionIndex
+    checkRevealed:{},     // key: checkItemId -> bool
+    completed:{},         // key: sectionId -> { scriptSeen, activitiesDone, checkDone, notesDone }
+    planner:{},
+    exitTicket:"",
+    timer:{ remaining: 5400, running:false, lastTick:null } // 90 min
+  };
+
+  function load(){
+    try{ const raw = localStorage.getItem(STORAGE_KEY); return raw ? JSON.parse(raw) : null; }
+    catch(e){ return null; }
+  }
+  const state = Object.assign({}, defaultState, load() || {});
+  function save(){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    renderProgress();
+  }
+
+  // ---------- DOM ----------
+  const el = (id)=>document.getElementById(id);
+
+  const langSel = el("langSel");
+  const viewSel = el("viewSel");
+  const paceSel = el("paceSel");
+
+  const menu = el("menu");
+  const secTitle = el("secTitle");
+  const secMeta  = el("secMeta");
+
+  const tabEls = Array.from(document.querySelectorAll(".tab"));
+  const panelScript = el("panelScript");
+  const panelActivities = el("panelActivities");
+  const panelCheck = el("panelCheck");
+  const panelNotes = el("panelNotes");
+
+  const progBar = el("progBar");
+  const progText = el("progText");
+  const doneBadge = el("doneBadge");
+
+  const timerText = el("timerText");
+  const timerStart = el("timerStart");
+  const timerPause = el("timerPause");
+  const timerReset = el("timerReset");
+
+  const exportBtn = el("exportBtn");
+  const importFile = el("importFile");
+  const resetAll = el("resetAll");
+  const randomPrompt = el("randomPrompt");
+
+  const planner = {
+    subType: el("subType"),
+    subOther: el("subOther"),
+    redirectTo: el("redirectTo"),
+    redirectOther: el("redirectOther"),
+    amount: el("amount"),
+    when: el("when"),
+    plannerNotes: el("plannerNotes"),
+    savePlan: el("savePlan"),
+    planSaved: el("planSaved"),
+  };
+  const exitTicket = el("exitTicket");
+  const saveExit = el("saveExit");
+
+  // Labels
+  const labels = {
+    en:{
+      appSubtitle: "Course: College-level Bible/Theology • 90 minutes • Interactive (EN/KR)",
+      navTitle:"Sections",
+      toolTitle:"Quick Tools",
+      toolHint:"Use during class: key terms, N–1 planner, exit ticket.",
+      glossaryTitle:"Glossary / Key Terms",
+      plannerTitle:"N–1 Subtraction Planner",
+      exitTitle:"Exit Ticket",
+      tabScript:"Script",
+      tabActs:"Activities",
+      tabCheck:"Quick Check",
+      tabNotes:"Notes",
+      langLabel:"Language",
+      viewLabel:"View",
+      timerLabel:"Timer",
+      progLabel:"Progress",
+      paceLabel:"Pace",
+      randomPrompt:"Random Prompt",
+      export:"Export JSON",
+      import:"Import JSON",
+      resetAll:"Reset All",
+      plannerSaved:"Saved",
+      plannerNotSaved:"Not saved",
+      notesPh:"Section notes… (observations, questions, follow-up)"
+    },
+    ko:{
+      appSubtitle: "과목: 대학 성경/신학 • 90분 • 인터랙티브 (영/한)",
+      navTitle:"섹션",
+      toolTitle:"빠른 도구",
+      toolHint:"수업 중 사용: 핵심 용어, N–1 플래너, Exit ticket.",
+      glossaryTitle:"용어집 / 핵심 용어",
+      plannerTitle:"N–1 감산 실천 플래너",
+      exitTitle:"Exit Ticket / 한 문장 요약",
+      tabScript:"강의 스크립트",
+      tabActs:"활동",
+      tabCheck:"퀵체크",
+      tabNotes:"노트",
+      langLabel:"언어",
+      viewLabel:"보기",
+      timerLabel:"타이머",
+      progLabel:"진행률",
+      paceLabel:"페이스",
+      randomPrompt:"랜덤 프롬프트",
+      export:"JSON 내보내기",
+      import:"JSON 가져오기",
+      resetAll:"전체 초기화",
+      plannerSaved:"저장됨",
+      plannerNotSaved:"미저장",
+      notesPh:"섹션 노트… (관찰, 질문, 후속 과제)"
+    }
+  };
+
+  // ---------- Helpers ----------
+  function fmt(sec){
+    sec = Math.max(0, Math.floor(sec));
+    const m = String(Math.floor(sec/60)).padStart(2,"0");
+    const s = String(sec%60).padStart(2,"0");
+    return `${m}:${s}`;
+  }
+  function activeSection(){
+    return lesson.sections.find(s => s.id === state.activeSectionId) || lesson.sections[0];
+  }
+  function langBlock(enHtml, koHtml){
+    if(state.lang === "en") return enHtml;
+    if(state.lang === "ko") return koHtml;
+    // both
+    return `
+      <div class="grid2">
+        <div class="card2"><div class="badge">EN</div><div style="margin-top:8px">${enHtml}</div></div>
+        <div class="card2"><div class="badge">KO</div><div style="margin-top:8px">${koHtml}</div></div>
+      </div>
+    `;
+  }
+  function setText(){
+    const L = labels[state.lang === "both" ? "en" : state.lang];
+    el("appSubtitle").textContent = (state.lang === "ko") ? labels.ko.appSubtitle : labels.en.appSubtitle;
+    el("navTitle").textContent = (state.lang === "ko") ? labels.ko.navTitle : labels.en.navTitle;
+    el("toolTitle").textContent = (state.lang === "ko") ? labels.ko.toolTitle : labels.en.toolTitle;
+    el("toolHint").textContent  = (state.lang === "ko") ? labels.ko.toolHint  : labels.en.toolHint;
+    el("glossaryTitle").textContent = (state.lang === "ko") ? labels.ko.glossaryTitle : labels.en.glossaryTitle;
+    el("plannerTitle").textContent  = (state.lang === "ko") ? labels.ko.plannerTitle  : labels.en.plannerTitle;
+    el("exitTitle").textContent     = (state.lang === "ko") ? labels.ko.exitTitle     : labels.en.exitTitle;
+
+    el("tabScript").textContent = (state.lang === "ko") ? labels.ko.tabScript : labels.en.tabScript;
+    el("tabActs").textContent   = (state.lang === "ko") ? labels.ko.tabActs   : labels.en.tabActs;
+    el("tabCheck").textContent  = (state.lang === "ko") ? labels.ko.tabCheck  : labels.en.tabCheck;
+    el("tabNotes").textContent  = (state.lang === "ko") ? labels.ko.tabNotes  : labels.en.tabNotes;
+
+    el("langLabel").textContent  = (state.lang === "ko") ? labels.ko.langLabel : labels.en.langLabel;
+    el("viewLabel").textContent  = (state.lang === "ko") ? labels.ko.viewLabel : labels.en.viewLabel;
+    el("timerLabel").textContent = (state.lang === "ko") ? labels.ko.timerLabel : labels.en.timerLabel;
+    el("progLabel").textContent  = (state.lang === "ko") ? labels.ko.progLabel : labels.en.progLabel;
+    el("paceLabel").textContent  = (state.lang === "ko") ? labels.ko.paceLabel : labels.en.paceLabel;
+
+    randomPrompt.textContent = (state.lang === "ko") ? labels.ko.randomPrompt : labels.en.randomPrompt;
+    exportBtn.textContent    = (state.lang === "ko") ? labels.ko.export : labels.en.export;
+    resetAll.textContent     = (state.lang === "ko") ? labels.ko.resetAll : labels.en.resetAll;
+
+    // Title
+    el("appTitle").textContent = (state.lang === "ko")
+      ? lesson.title.ko
+      : lesson.title.en;
+
+    // Glossary text
+    el("gN1").textContent = (state.lang === "ko") ? lesson.glossary.gN1.ko : lesson.glossary.gN1.en;
+    el("gGrace").textContent = (state.lang === "ko") ? lesson.glossary.gGrace.ko : lesson.glossary.gGrace.en;
+    el("gWorship").textContent = (state.lang === "ko") ? lesson.glossary.gWorship.ko : lesson.glossary.gWorship.en;
+    el("gLove").textContent = (state.lang === "ko") ? lesson.glossary.gLove.ko : lesson.glossary.gLove.en;
+    el("gTithe").textContent = (state.lang === "ko") ? lesson.glossary.gTithe.ko : lesson.glossary.gTithe.en;
+    el("gSolidarity").textContent = (state.lang === "ko") ? lesson.glossary.gSolidarity.ko : lesson.glossary.gSolidarity.en;
+    el("gEcon").textContent = (state.lang === "ko") ? lesson.glossary.gEcon.ko : lesson.glossary.gEcon.en;
+
+    // Planner status
+    planner.planSaved.textContent = state.planner?.savedAt ? ((state.lang==="ko")?labels.ko.plannerSaved:labels.en.plannerSaved) : ((state.lang==="ko")?labels.ko.plannerNotSaved:labels.en.plannerNotSaved);
+  }
+
+  // ---------- Render Menu ----------
+  function completionCount(){
+    // We treat each section as 3 completion points: activities, check, notes (and script viewed)
+    let done = 0, total = lesson.sections.length * 3;
+    lesson.sections.forEach(s=>{
+      const c = state.completed[s.id] || {};
+      if(c.activitiesDone) done++;
+      if(c.checkDone) done++;
+      if(c.notesDone) done++;
+    });
+    return {done,total};
+  }
+
+  function renderMenu(){
+    menu.innerHTML = "";
+    lesson.sections.forEach(sec=>{
+      const c = state.completed[sec.id] || {};
+      const done = [c.activitiesDone,c.checkDone,c.notesDone].filter(Boolean).length;
+      const btn = document.createElement("button");
+      btn.className = "menuItem" + (sec.id === state.activeSectionId ? " active":"");
+      const title = (state.lang==="ko") ? sec.title.ko : sec.title.en;
+      const meta  = (state.lang==="ko") ? `시간: ${sec.time}` : `Time: ${sec.time}`;
+      btn.innerHTML = `
+        <div>
+          <div style="font-weight:900">${title}</div>
+          <div class="tiny">${meta}</div>
+        </div>
+        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px;">
+          <span class="badge">${done}/3</span>
+        </div>
+      `;
+      btn.onclick = ()=>{
+        state.activeSectionId = sec.id;
+        save();
+        renderAll();
+      };
+      menu.appendChild(btn);
+    });
+
+    const cc = completionCount();
+    doneBadge.textContent = `${cc.done}/${cc.total}`;
+  }
+
+  // ---------- Render Section Panels ----------
+  function renderTabs(){
+    tabEls.forEach(t=>{
+      const key = t.getAttribute("data-tab");
+      t.classList.toggle("active", key === state.tab);
+    });
+    panelScript.classList.toggle("hidden", state.tab!=="script");
+    panelActivities.classList.toggle("hidden", state.tab!=="activities");
+    panelCheck.classList.toggle("hidden", state.tab!=="check");
+    panelNotes.classList.toggle("hidden", state.tab!=="notes");
+  }
+
+  function renderScript(sec){
+    const title = (state.lang==="ko") ? sec.title.ko : sec.title.en;
+    const meta  = (state.lang==="ko") ? `${lesson.meta.ko} • 구간: ${sec.time}` : `${lesson.meta.en} • Segment: ${sec.time}`;
+    secTitle.textContent = title;
+    secMeta.textContent = meta;
+
+    panelScript.innerHTML = `
+      ${state.view === "instructor" ? `
+        <div class="card2">
+          <div class="row">
+            <div style="font-weight:900">${(state.lang==="ko")?"강의 전달 노트":"Delivery Notes"}</div>
+            <span class="badge">${(state.lang==="ko")? "대화체 + 멈춤 신호 포함" : "Conversational + pauses included"}</span>
+          </div>
+          <div class="tiny" style="margin-top:8px">
+            ${(state.lang==="ko")
+              ? "문장을 자연스럽게 읽되, [PAUSE]/[전환] 같은 신호에서는 의도적으로 속도를 늦추세요."
+              : "Read naturally. At [PAUSE]/[Transition] cues, intentionally slow down and make eye contact."
+            }
+          </div>
+        </div>
+        <div class="divider"></div>
+      ` : ""}
+
+      ${langBlock(sec.script.en, sec.script.ko)}
+
+      <div class="divider"></div>
+      <button class="btn good" id="markScriptSeen">${(state.lang==="ko")?"스크립트 확인 완료":"Mark Script Seen"}</button>
+      <span class="badge" id="scriptSeenBadge">${(state.completed[sec.id]||{}).scriptSeen ? "✓" : "—"}</span>
+    `;
+
+    const btn = document.getElementById("markScriptSeen");
+    btn.onclick = ()=>{
+      state.completed[sec.id] = state.completed[sec.id] || {};
+      state.completed[sec.id].scriptSeen = true;
+      save();
+      renderMenu();
+      renderProgress();
+      renderAll();
+    };
+  }
+
+  function renderActivities(sec){
+    const htmlItems = sec.activities.map(act=>{
+      const existing = state.activityResponses[act.id] || "";
+      const title = (state.lang==="ko") ? act.title.ko : act.title.en;
+      const prompt = (state.lang==="ko") ? act.prompt.ko : act.prompt.en;
+
+      return `
+        <div class="card2" style="margin-bottom:12px">
+          <div class="row">
+            <div style="font-weight:900">${title}</div>
+            <span class="badge">${sec.time}</span>
+          </div>
+          <div class="tiny" style="margin-top:6px">${prompt}</div>
+          <textarea data-act="${act.id}" placeholder="${(state.lang==="ko")?"여기에 입력…":"Type here…"}">${existing}</textarea>
+        </div>
+      `;
+    }).join("");
+
+    panelActivities.innerHTML = `
+      ${state.lang==="ko"
+        ? `<div class="tiny">팁: 먼저 혼자 적고, 2–3명과 공유한 뒤, 그룹 요약을 덧붙이세요.</div>`
+        : `<div class="tiny">Tip: Write solo first, share with 2–3 peers, then add a group summary.</div>`
+      }
+      <div class="divider"></div>
+      ${htmlItems}
+      <button class="btn good" id="markActsDone">${(state.lang==="ko")?"활동 완료 표시":"Mark Activities Done"}</button>
+      <span class="badge" id="actsBadge">${(state.completed[sec.id]||{}).activitiesDone ? "✓" : "—"}</span>
+    `;
+
+    panelActivities.querySelectorAll("textarea[data-act]").forEach(t=>{
+      t.addEventListener("input", ()=>{
+        const id = t.getAttribute("data-act");
+        state.activityResponses[id] = t.value;
+        save();
+      });
+    });
+
+    document.getElementById("markActsDone").onclick = ()=>{
+      state.completed[sec.id] = state.completed[sec.id] || {};
+      state.completed[sec.id].activitiesDone = true;
+      save();
+      renderMenu(); renderProgress(); renderAll();
+    };
+  }
+
+  function renderCheck(sec){
+    const check = sec.check;
+    const title = (state.lang==="ko") ? check.title.ko : check.title.en;
+
+    const itemsHtml = check.items.map(item=>{
+      const q = (state.lang==="ko") ? item.q.ko : item.q.en;
+      const options = item.options.map((opt, idx)=>{
+        const text = (state.lang==="ko") ? opt.ko : opt.en;
+        const chosen = state.checkAnswers[item.id] === idx;
+        return `
+          <label class="opt">
+            <input type="radio" name="${item.id}" value="${idx}" ${chosen ? "checked":""}/>
+            <div>${text}</div>
+          </label>
+        `;
+      }).join("");
+
+      const revealed = !!state.checkRevealed[item.id];
+      const explain = (state.lang==="ko") ? item.explain.ko : item.explain.en;
+
+      const correctness =
+        (state.checkAnswers[item.id] === undefined) ? ""
+        : (state.checkAnswers[item.id] === item.answer ? `<span class="ok">${(state.lang==="ko")?"정답":"Correct"}</span>` : `<span class="badTxt">${(state.lang==="ko")?"다시 생각":"Recheck"}</span>`);
+
+      return `
+        <div class="card2" style="margin-bottom:12px">
+          <div class="row">
+            <div style="font-weight:900">${q}</div>
+            <span class="badge">${correctness || "—"}</span>
+          </div>
+          <div class="mcq" data-mcq="${item.id}">
+            ${options}
+          </div>
+          <div style="margin-top:10px" class="row">
+            <button class="btn" data-reveal="${item.id}">${(state.lang==="ko")?"해설 보기/숨기기":"Toggle Explanation"}</button>
+            <span class="tiny">${(state.lang==="ko")?"토론 후 확인하세요.":"Discuss first, then reveal."}</span>
+          </div>
+          <div class="${revealed ? "" : "hidden"}" id="ex_${item.id}" style="margin-top:10px">
+            <div class="quote">${explain}</div>
+          </div>
+        </div>
+      `;
+    }).join("");
+
+    panelCheck.innerHTML = `
+      <div class="row">
+        <div style="font-weight:900">${title}</div>
+        <span class="badge">${(state.lang==="ko")?"정답 공개는 선택":"Reveal optional"}</span>
+      </div>
+      <div class="divider"></div>
+      ${itemsHtml}
+      <button class="btn good" id="markCheckDone">${(state.lang==="ko")?"퀵체크 완료 표시":"Mark Quick Check Done"}</button>
+      <span class="badge" id="checkBadge">${(state.completed[sec.id]||{}).checkDone ? "✓" : "—"}</span>
+    `;
+
+    // MCQ change handlers
+    panelCheck.querySelectorAll(".mcq").forEach(mcq=>{
+      const id = mcq.getAttribute("data-mcq");
+      mcq.querySelectorAll("input[type='radio']").forEach(r=>{
+        r.addEventListener("change", ()=>{
+          state.checkAnswers[id] = Number(r.value);
+          save();
+          renderAll(); // refresh correctness
+        });
+      });
+    });
+
+    // reveal handlers
+    panelCheck.querySelectorAll("button[data-reveal]").forEach(b=>{
+      b.addEventListener("click", ()=>{
+        const id = b.getAttribute("data-reveal");
+        state.checkRevealed[id] = !state.checkRevealed[id];
+        save();
+        renderAll();
+      });
+    });
+
+    document.getElementById("markCheckDone").onclick = ()=>{
+      state.completed[sec.id] = state.completed[sec.id] || {};
+      state.completed[sec.id].checkDone = true;
+      save();
+      renderMenu(); renderProgress(); renderAll();
+    };
+  }
+
+  function renderNotes(sec){
+    const existing = state.notesBySection[sec.id] || "";
+    panelNotes.innerHTML = `
+      <div class="card2">
+        <div class="row">
+          <div style="font-weight:900">${(state.lang==="ko")?"섹션 노트":"Section Notes"}</div>
+          <span class="badge">${(state.lang==="ko")?"후속 질문 기록":"Capture follow-ups"}</span>
+        </div>
+        <div class="divider"></div>
+        <textarea id="notesArea" placeholder="${(state.lang==="ko")?labels.ko.notesPh:labels.en.notesPh}">${existing}</textarea>
+        <div class="divider"></div>
+        <button class="btn good" id="markNotesDone">${(state.lang==="ko")?"노트 완료 표시":"Mark Notes Done"}</button>
+        <span class="badge" id="notesBadge">${(state.completed[sec.id]||{}).notesDone ? "✓" : "—"}</span>
+      </div>
+    `;
+    const notesArea = document.getElementById("notesArea");
+    notesArea.addEventListener("input", ()=>{
+      state.notesBySection[sec.id] = notesArea.value;
+      save();
+    });
+    document.getElementById("markNotesDone").onclick = ()=>{
+      state.completed[sec.id] = state.completed[sec.id] || {};
+      state.completed[sec.id].notesDone = true;
+      save();
+      renderMenu(); renderProgress(); renderAll();
+    };
+  }
+
+  function renderSection(){
+    const sec = activeSection();
+    renderScript(sec);
+    renderActivities(sec);
+    renderCheck(sec);
+    renderNotes(sec);
+    renderTabs();
+  }
+
+  // ---------- Progress ----------
+  function renderProgress(){
+    const cc = completionCount();
+    const pct = cc.total ? Math.round((cc.done/cc.total)*100) : 0;
+    progText.textContent = pct + "%";
+    progBar.style.width = pct + "%";
+    doneBadge.textContent = `${cc.done}/${cc.total}`;
+  }
+
+  // ---------- Tabs ----------
+  tabEls.forEach(t=>{
+    t.addEventListener("click", ()=>{
+      state.tab = t.getAttribute("data-tab");
+      save();
+      renderTabs();
+    });
+  });
+
+  // ---------- Language / View / Pace ----------
+  langSel.value = state.lang;
+  viewSel.value = state.view;
+  paceSel.value = state.pace;
+
+  langSel.addEventListener("change", ()=>{
+    state.lang = langSel.value;
+    save();
+    renderAll();
+  });
+  viewSel.addEventListener("change", ()=>{
+    state.view = viewSel.value;
+    save();
+    renderAll();
+  });
+  paceSel.addEventListener("change", ()=>{
+    state.pace = paceSel.value;
+    save();
+  });
+
+  // ---------- Timer ----------
+  let timerInterval = null;
+  function tick(){
+    if(!state.timer.running) return;
+    const now = Date.now();
+    const dt = Math.max(0, Math.floor((now - (state.timer.lastTick || now))/1000));
+    state.timer.lastTick = now;
+    state.timer.remaining = Math.max(0, state.timer.remaining - dt);
+    timerText.textContent = fmt(state.timer.remaining);
+    save();
+    if(state.timer.remaining <= 0){
+      state.timer.running = false;
+      save();
+      clearInterval(timerInterval);
+      timerInterval = null;
+      alert(state.lang==="ko" ? "타이머 종료! Exit Ticket을 작성하세요." : "Timer ended! Write your Exit Ticket.");
+    }
+  }
+  function setTimerTo90(){
+    state.timer.remaining = 5400;
+    state.timer.running = false;
+    state.timer.lastTick = null;
+    timerText.textContent = fmt(state.timer.remaining);
+    save();
+  }
+  timerText.textContent = fmt(state.timer.remaining);
+
+  timerStart.addEventListener("click", ()=>{
+    if(state.timer.remaining<=0) setTimerTo90();
+    state.timer.running = true;
+    state.timer.lastTick = Date.now();
+    save();
+    if(!timerInterval) timerInterval = setInterval(tick, 250);
+  });
+  timerPause.addEventListener("click", ()=>{
+    state.timer.running = false;
+    save();
+  });
+  timerReset.addEventListener("click", setTimerTo90);
+
+  // ---------- Random Prompt ----------
+  randomPrompt.addEventListener("click", ()=>{
+    const sec = activeSection();
+    const allActs = sec.activities || [];
+    const allChecks = sec.check?.items || [];
+    const pool = [];
+    allActs.forEach(a=>pool.push({type:"act", id:a.id, text:(state.lang==="ko")?a.prompt.ko:a.prompt.en}));
+    allChecks.forEach(c=>pool.push({type:"check", id:c.id, text:(state.lang==="ko")?c.q.ko:c.q.en}));
+    if(pool.length===0) return alert(state.lang==="ko"?"이 섹션에는 프롬프트가 없습니다.":"No prompts in this section.");
+    const pick = pool[Math.floor(Math.random()*pool.length)];
+    alert((state.lang==="ko"?"랜덤 프롬프트:\n\n":"Random prompt:\n\n") + pick.text);
+  });
+
+  // ---------- Planner ----------
+  function loadPlanner(){
+    const p = state.planner || {};
+    planner.subType.value = p.subType || "coffee";
+    planner.subOther.value = p.subOther || "";
+    planner.redirectTo.value = p.redirectTo || "food_ministry";
+    planner.redirectOther.value = p.redirectOther || "";
+    planner.amount.value = p.amount || "";
+    planner.when.value = p.when || "";
+    planner.plannerNotes.value = p.notes || "";
+    planner.planSaved.textContent = p.savedAt ? ((state.lang==="ko")?labels.ko.plannerSaved:labels.en.plannerSaved) : ((state.lang==="ko")?labels.ko.plannerNotSaved:labels.en.plannerNotSaved);
+  }
+  planner.savePlan.addEventListener("click", ()=>{
+    state.planner = {
+      subType: planner.subType.value,
+      subOther: planner.subOther.value,
+      redirectTo: planner.redirectTo.value,
+      redirectOther: planner.redirectOther.value,
+      amount: planner.amount.value,
+      when: planner.when.value,
+      notes: planner.plannerNotes.value,
+      savedAt: new Date().toISOString()
+    };
+    save();
+    loadPlanner();
+  });
+
+  // ---------- Exit Ticket ----------
+  exitTicket.value = state.exitTicket || "";
+  saveExit.addEventListener("click", ()=>{
+    state.exitTicket = exitTicket.value;
+    save();
+    alert(state.lang==="ko"?"저장했습니다.":"Saved.");
+  });
+  exitTicket.addEventListener("input", ()=>{
+    state.exitTicket = exitTicket.value;
+    save();
+  });
+
+  // ---------- Export / Import / Reset ----------
+  exportBtn.addEventListener("click", ()=>{
+    const payload = {
+      exportedAt: new Date().toISOString(),
+      app: STORAGE_KEY,
+      lessonTitle: lesson.title,
+      state
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "lesson11_nt_giving_progress.json";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  });
+  document.querySelector("label.btn")?.addEventListener("click", ()=>importFile.click());
+  importFile.addEventListener("change", async ()=>{
+    const file = importFile.files?.[0];
+    if(!file) return;
+    try{
+      const text = await file.text();
+      const obj = JSON.parse(text);
+      if(!obj.state) throw new Error("No state");
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(obj.state));
+      alert(state.lang==="ko" ? "가져오기 완료! 새로고침합니다." : "Import complete! Reloading.");
+      location.reload();
+    }catch(e){
+      alert(state.lang==="ko" ? "가져오기 실패: JSON을 확인하세요." : "Import failed: check JSON.");
+    }
+  });
+  resetAll.addEventListener("click", ()=>{
+    const ok = confirm(state.lang==="ko" ? "전체 초기화할까요? (모든 저장 내용 삭제)" : "Reset everything? (All saved data will be cleared)");
+    if(!ok) return;
+    localStorage.removeItem(STORAGE_KEY);
+    location.reload();
+  });
+
+  // ---------- Render All ----------
+  function renderAll(){
+    setText();
+    loadPlanner();
+    renderMenu();
+    renderSection();
+    renderProgress();
+  }
+
+  // Init
+  renderAll();
+})();
+</script>
+</body>
+</html>
